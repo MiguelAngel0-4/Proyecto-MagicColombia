@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Panel Admin — Cosmix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ESTILOS: se respeta tu estética -->
+  <style>
+    :root {
+      --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb;
+      --brand:#7c3aed; --brand-2:#9333ea; --ok:#16a34a; --danger:#ef4444;
+      --card:#0b1220; --row:#0b1422; --row2:#0c1626; --border:#1f2937;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#0f172a,#020617);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .wrap{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    /* Sidebar */
+    .sidebar{background:linear-gradient(180deg,#0b1120,#020617);border-right:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+    .logo-img{height:32px}
+    .logo-badge{width:36px;height:36px;border-radius:10px;background:linear-gradient(45deg,var(--brand),var(--brand-2));display:grid;place-items:center;font-weight:700}
+    .sidebar h1{font-size:15px;margin:0}
+    .sidebar .muted{color:var(--muted);font-size:12px}
+    .sidebar-nav{list-style:none;padding:12px 0;margin:8px 0;border-top:1px solid var(--border)}
+    .sidebar-nav li{margin:8px 0}
+    .sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted)}
+    .sidebar-nav a:hover{background:#0b1323;color:var(--text)}
+    .sidebar-nav a.active{background:linear-gradient(90deg,#1f1141,#0a0f1f);color:#f0e9ff;border:1px solid #2a1b55}
+    .sidebar .foot{position:absolute;left:0;right:0;bottom:0;padding:18px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+    /* Main */
+    .main{padding:26px 28px}
+    .header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+    .title{font-size:22px;font-weight:700}
+    .search{flex:1;display:flex;gap:10px}
+    .input{flex:1;background:#0b1322;border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text)}
+    .btn{border:1px solid var(--border);background:#0b1322;color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer}
+    .btn:hover{background:#0e1730}
+    .btn-primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));border:0}
+    .btn-outline{background:transparent;border:1px solid var(--border)}
+    .grid{display:grid;gap:16px}
+    .cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{background:radial-gradient(1200px circle at top left,#0f1a33,#080c16 55%);border:1px solid var(--border);border-radius:16px;padding:16px}
+    .metric{font-size:26px;font-weight:700}
+    .muted{color:var(--muted)}
+    .section{display:none}
+    .section.active{display:block}
+    /* Tabla */
+    .table-wrap{background:linear-gradient(180deg,#0b121f,#090e19);border:1px solid var(--border);border-radius:16px;overflow:auto}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    thead th{position:sticky;top:0;background:#0c1426;color:#c7d2fe;text-align:left;font-size:12px;letter-spacing:.3px;padding:12px;border-bottom:1px solid var(--border)}
+    tbody td{padding:12px;border-bottom:1px dashed #132036;vertical-align:middle}
+    tbody tr:nth-child(odd){background:linear-gradient(90deg,#08101f,#091125)}
+    tbody tr:nth-child(even){background:linear-gradient(90deg,#090f1c,#0a1222)}
+    .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #1f2937}
+    .badge-success{background:#07250f;border-color:#0b3a18;color:#72f1a3}
+    .badge-danger{background:#2a0a0a;border-color:#3f0f0f;color:#fda4af}
+    .flex{display:flex;align-items:center}
+    .gap-4{gap:10px}
+    .btn-sm{padding:6px 10px;border-radius:10px}
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);z-index:50}
+    .modal.open{display:grid}
+    .modal-card{width:min(920px,95vw);background:#0b111e;border:1px solid var(--border);border-radius:18px;box-shadow:0 10px 60px rgba(0,0,0,.4);overflow:hidden}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .modal-body{padding:18px}
+    .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--border)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    .form-label{font-size:12px;color:var(--muted)}
+    .form-input{background:#0a1220;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}.sidebar{position:static;height:auto}.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+
+<body>
+ <div class="wrap">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <!-- Logo: ya lleva directo a tienda.html -->
+    <a href="tienda.html" class="logo" aria-label="Ir a la tienda">
+      <img src="../images/logo_cmx.svg" alt="Cosmix" class="logo-img">
+      <div class="logo-badge" hidden>CMX</div>
+    </a>
+
+    <div>
+      <h1>Cosmix — Panel</h1>
+      <div class="muted">Administra catálogo y usuarios</div>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><a href="#" class="active" onclick="showSection('dashboard',this)">🏠 Dashboard</a></li>
+      <li><a href="#" onclick="showSection('productos',this)">🖼 Productos</a></li>
+      <li><a href="#" onclick="showSection('usuarios',this)">👤 Domiciliarios</a></li>
+    </ul>
+    <div class="foot">Sesión protegida.
+      <a href="/cosmix/magic_auth_php/admin/logout.php">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="header">
+      <div class="title">Administración</div>
+      <div class="search">
+        <input class="input" id="buscador" placeholder="Buscar en productos… (cliente)">
+        <button class="btn" onclick="cargarProductos()">Refrescar</button>
+        <button id="btnNewProduct" class="btn btn-outline">+ Nuevo (rápido)</button>
+        <button class="btn btn-primary" onclick="openModal('modalProducto')">+ Nuevo Producto</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <div class="grid cards">
+        <div class="card"><div class="muted">Productos</div><div class="metric" id="mProd">—</div><div class="muted">Total activos e inactivos</div></div>
+        <div class="card"><div class="muted">Stock bajo</div><div class="metric" id="mLow">—</div><div class="muted">Stock &lt;= 5</div></div>
+        <div class="card"><div class="muted">Última actualización</div><div class="metric" id="mUpd">—</div><div class="muted">Productos</div></div>
+        <div class="card"><div class="muted">Sesión</div><div class="metric">Activa</div><div class="muted">Admin</div></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section id="productos" class="section">
+      <div class="table-wrap">
+        <table id="tblProductos">
+          <thead>
+            <tr>
+              <th style="width:70px">ID</th>
+              <th style="width:70px">IMG</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th style="width:130px">Precio</th>
+              <th style="width:100px">Stock</th>
+              <th style="width:110px">Estado</th>
+              <th style="width:140px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productosBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- USUARIOS / DOMICILIARIOS -->
+    <section id="usuarios" class="section">
+      <div class="card" style="max-width:780px">
+        <h3 style="margin:0 0 10px">Agregar domiciliario</h3>
+        <p class="muted" style="margin-top:0">
+          Si el correo ya existe, cambia su rol a <b>domiciliario</b> y lo activa.
+        </p>
+
+        <form id="formDomi" method="post" action="/cosmix/magic_auth_php/admin/add_domiciliario.php" autocomplete="off">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Correo</label>
+              <input type="email" class="form-input" name="email" required placeholder="correo@dominio.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nombre (opcional)</label>
+              <input type="text" class="form-input" name="nombre" placeholder="Nombre y apellido">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+            <button type="submit" class="btn btn-primary">Guardar domiciliario</button>
+          </div>
+        </form>
+
+        <div id="msgDomi" class="muted" style="margin-top:10px"></div>
+      </div>
+    </section>
+  </main>
+ </div>
+
+<!-- MODAL PRODUCTO -->
+<div class="modal" id="modalProducto" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <strong>Producto</strong>
+      <button class="btn btn-outline" onclick="closeModal('modalProducto')">Cerrar</button>
+    </div>
+
+    <form id="formProducto" autocomplete="off">
+      <div class="modal-body">
+        <input type="hidden" name="id" id="id">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input class="form-input" name="nombre" id="nombre" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">SKU</label>
+            <input class="form-input" name="sku" id="sku" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <input class="form-input" name="categoria" id="categoria" placeholder="pokemon | magic | digimon …">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de carta</label>
+            <input class="form-input" name="tipo_carta" id="tipo_carta" placeholder="Booster | Caja | Starter Deck …">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Edición</label>
+            <input class="form-input" name="edicion" id="edicion" placeholder="Scarlet &amp; Violet | Modern Horizons 3 …">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Precio</label>
+            <input type="number" step="0.01" class="form-input" name="precio" id="precio" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Stock</label>
+            <input type="number" class="form-input" name="stock" id="stock" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">URL imagen</label>
+            <input type="url" class="form-input" name="img_url" id="img_url" placeholder="/cosmix/images/productos/img.1.jpg">
+          </div>
+
+          <div class="form-group" style="align-self:end">
+            <label class="form-label">Activo</label>
+            <label style="display:flex;gap:.5rem;align-items:center">
+              <input type="checkbox" name="is_active" id="is_active" value="1" checked> Sí
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalProducto')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== JS ===== -->
+<script>
+  /* Navegación simple entre secciones */
+  function showSection(id, el){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    const sec = document.getElementById(id); if(sec) sec.classList.add('active');
+    document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.remove('active'));
+    if(el) el.classList.add('active');
+  }
+  function openModal(id){document.getElementById(id)?.classList.add('open')}
+  function closeModal(id){document.getElementById(id)?.classList.remove('open')}
+</script>
+
+<script>
+/* ---------- API helper (único) ---------- */
+(function () {
+  async function api(action, payload = {}, opts = {}) {
+    const URL_BASE = '/cosmix/magic_auth_php/admin/productos_api.php';
+
+    // GET para listados
+    if (opts.method === 'GET' || action === 'list') {
+      const u = new URL(URL_BASE, location.origin);
+      u.searchParams.set('action', action);
+      for (const k in payload) u.searchParams.set(k, payload[k]);
+      const r = await fetch(u, { credentials: 'include' });
+      return r.json();
+    }
+
+    // POST para guardar/editar/borrar
+    const fd = new FormData();
+    fd.append('action', action);
+    for (const k in payload) fd.append(k, payload[k]);
+    const r = await fetch(URL_BASE, { method: 'POST', body: fd, credentials: 'include' });
+    return r.json();
+  }
+
+  /* ---------- Productos ---------- */
+  let _cacheProductos = [];
+
+  async function cargarProductos(page = 1) {
+    const q = (document.getElementById('buscador')?.value || '').toLowerCase();
+
+    // tu API devuelve { ok, items, page, per, total }
+    const js = await api('list', { page, per: 50 }, { method: 'GET' });
+    if (!js?.ok) { alert(js?.error || 'Error listando'); return; }
+
+    const items = js.items ?? js.elementos ?? js.data ?? [];
+    _cacheProductos = items;
+
+    // métricas
+    const total = Number(js.total ?? items.length);
+    document.getElementById('mProd')?.replaceChildren(document.createTextNode(String(total)));
+    document.getElementById('mLow')?.replaceChildren(document.createTextNode(String(items.filter(p => (p.stock|0) <= 5).length)));
+    document.getElementById('mUpd')?.replaceChildren(document.createTextNode(new Date().toLocaleTimeString()));
+
+    // filtro de búsqueda en cliente
+    let data = items;
+    if (q) {
+      data = items.filter(p =>
+        (p.nombre||'').toLowerCase().includes(q) ||
+        (p.categoria||'').toLowerCase().includes(q) ||
+        (p.sku||'').toLowerCase().includes(q)
+      );
+    }
+
+    // render tabla
+    const tb = document.getElementById('productosBody'); if (!tb) return;
+    tb.innerHTML = data.map(p => `
+      <tr data-id="${p.id}">
+        <td>${p.id}</td>
+        <td><img src="${p.img_url||''}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:8px;background:#0a1220;border:1px solid #16233a"></td>
+        <td>${p.nombre||''}<div class="muted" style="font-size:12px">${p.sku||''}</div></td>
+        <td>${p.categoria||''}</td>
+        <td>$${Number(p.precio||0).toFixed(2)}</td>
+        <td>${p.stock??0}</td>
+        <td>${(p.is_active==1 || p.is_active==='1')
+            ? '<span class="badge badge-success">Activo</span>'
+            : '<span class="badge badge-danger">Inactivo</span>'}</td>
+        <td class="flex gap-4">
+          <button class="btn btn-sm btn-outline" onclick="editarProd(${p.id})">✏️</button>
+          <button class="btn btn-sm btn-outline" style="color:var(--danger)" onclick="borrarProd(${p.id})">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+  window.cargarProductos = cargarProductos;
+
+  // Carga registro en modal
+  window.editarProd = function (id) {
+    const p = _cacheProductos.find(x => String(x.id) === String(id));
+    if (!p) return;
+    const f = document.getElementById('formProducto'); if (!f) return;
+    f.id.value = p.id ?? '';
+    f.nombre.value = p.nombre ?? '';
+    f.sku.value = p.sku ?? '';
+    f.categoria.value = p.categoria ?? '';
+    f.tipo_carta.value = p.tipo_carta ?? '';
+    f.edicion.value = p.edicion ?? '';
+    f.precio.value = p.precio ?? '';
+    f.stock.value = p.stock ?? 0;
+    f.img_url.value = p.img_url ?? '';
+    f.is_active.checked = (p.is_active==1 || p.is_active==='1');
+    openModal('modalProducto');
+  };
+
+  // Borrado lógico (si tu API lo implementa)
+  window.borrarProd = async function (id) {
+    if (!confirm('¿Borrar (lógico) este producto?')) return;
+    const res = await api('delete', { id });
+    if (res.ok) {
+      await cargarProductos();
+      try { localStorage.setItem('cosmix_refresh', Date.now().toString()); } catch {}
+      // no redirijo al catálogo en borrado; nos quedamos en admin
+    } else alert(res.error || 'Error borrando');
+  };
+
+  // Guardado del modal
+  document.getElementById('formProducto')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const payload = {
+      id        : f.id.value.trim(),
+      nombre    : f.nombre.value.trim(),
+      sku       : f.sku.value.trim(),
+      categoria : f.categoria.value.trim(),
+      tipo_carta: f.tipo_carta.value.trim(),
+      edicion   : f.edicion.value.trim(),
+      precio    : String(Number(f.precio.value || 0)),
+      stock     : String(parseInt(f.stock.value || 0)),
+      img_url   : f.img_url.value.trim(),
+      is_active : f.is_active.checked ? '1' : '0',
+    };
+    const res = await api('save', payload);
+    if (res.ok) {
+      closeModal('modalProducto');
+      f.reset();
+      try { localStorage.setItem('cosmix_refresh', Date.now().toString()); } catch {}
+      // Redirige a tienda para ver el cambio reflejado
+      location.href = '/cosmix/html/tienda.html#product-grid';
+    } else {
+      alert(res.error || 'Error guardando');
+    }
+  });
+
+  // Botón + Nuevo (rápido) por prompts
+  document.getElementById('btnNewProduct')?.addEventListener('click', async () => {
+    const sku    = prompt('SKU (único):', '');      if (!sku) return;
+    const nombre = prompt('Nombre:', '');           if (!nombre) return;
+    const precio = prompt('Precio (COP):', '0') || '0';
+    const stock  = prompt('Stock:', '0') || '0';
+    const imgUrl = prompt('img_url (opcional):', '') || ''; // vacío => autogenera
+
+    const res = await api('save', {
+      sku, nombre,
+      precio: String(precio),
+      stock : String(stock),
+      img_url: imgUrl,
+      is_active: '1',
+    });
+
+    if (!res.ok) { alert('Error: ' + (res.error || 'no se pudo guardar')); return; }
+    try { localStorage.setItem('cosmix_refresh', Date.now().toString()); } catch {}
+    // Redirige también en el flujo rápido
+    location.href = '/cosmix/html/tienda.html#product-grid';
+  });
+
+  // Filtro
+  document.getElementById('buscador')?.addEventListener('input', () => cargarProductos());
+
+  // init
+  document.addEventListener('DOMContentLoaded', () => { cargarProductos(); });
+})();
+</script>
+</body>
+</html>
